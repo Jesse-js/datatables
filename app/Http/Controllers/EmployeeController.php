@@ -10,6 +10,12 @@ class EmployeeController extends Controller
 {
     public function index()
     {
+        if(request()->ajax()) {
+            return datatables()->of(Employee::select('*'))
+                ->addColumn('action', 'employee.action')
+                ->rawColumns(['action'])
+                ->make(true);
+        }
         return view('employee.index');
     }
 

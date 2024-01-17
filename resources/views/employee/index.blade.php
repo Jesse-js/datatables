@@ -13,6 +13,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
     </script>
+    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"  rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
 </head>
 
 <body>
@@ -34,7 +37,7 @@
         </div>
     @endif
     <div class="card-body">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="employee-table">
             <thead>
                 <th>Id</th>
                 <th>Name</th>
@@ -92,13 +95,30 @@
         </div>
     </div>
     <script type="text/javascript">
-        // $(document).ready(function() {
-        //     $.ajaxSetup({
-        //         headers: {
-        //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //         }
-        //     })
-        // });
+        $(document).ready(function() {
+            // $.ajaxSetup({
+            //     headers: {
+            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            //     }
+            // })
+            $('#employee-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('employees.index') }}",
+                columns: [
+                    { data: 'id', name: 'id' },
+                    { data: 'name', name: 'name' },
+                    { data: 'email', name: 'email' },
+                    { data: 'adress', name: 'adress' },
+                    { data: 'created_at', name: 'created_at' },
+                    { data: 'updated_at', name: 'updated_at' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                order: [
+                    [0, 'desc']
+                ]
+            });
+        });
         function add() {
             $('#EmployeeForm').trigger("reset");
             //$('#EmployeeModal').html("Add Employee");
@@ -116,8 +136,11 @@
                 contentType: false,
                 processData: false,
                 success: (data) => {
-                    console.log(data);
+                    // console.log(data);
                     $('#employee-modal').modal('hide');
+                    var table = $('#employee-table').DataTable();
+                    table.ajax.reload();
+                    //table.fnDraw(false);
                     $('#btn-save').html('Submit');
                     $('#btn-save').prop('disabled', false);
                 },
