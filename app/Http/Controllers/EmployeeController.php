@@ -33,4 +33,17 @@ class EmployeeController extends Controller
             );
         return Response()->json($employee);
     }
+
+    public function edit(Request $request)
+    {
+        $employee = Employee::find($request->input('id'));
+        return Response()->json($employee);
+    }
+
+    public function destroy(Request $request)
+    {
+        $employee = Employee::find($request->input('id'));
+        $employee->delete();
+        return Response()->json($employee);
+    }
 }

@@ -54,13 +54,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Employee</h5>
+                    <h5 class="modal-title" id="EmployeeModal">Employee</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="javascript:void(0)" id="EmployeeForm" name="EmployeeForm" class="form-horizontal"
                         method="POST" enctype="multipart/form-data">
-                        @csrf
+                        <input type="hidden" name="_token" id="_token" value="{{ csrf_token() }}">
+                        {{-- @csrf --}}
                         <input type="hidden" name="id" id="id">
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">Name</label>
@@ -96,11 +97,11 @@
     </div>
     <script type="text/javascript">
         $(document).ready(function() {
-            // $.ajaxSetup({
-            //     headers: {
-            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            //     }
-            // })
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('#_token').val()
+                }
+            });
             $('#employee-table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -121,10 +122,49 @@
         });
         function add() {
             $('#EmployeeForm').trigger("reset");
-            //$('#EmployeeModal').html("Add Employee");
+            $('#EmployeeModal').html("Add Employee");
             $('#employee-modal').modal('show');
             $('#id').val('');
         }
+
+        function editFunction(id) {
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('employees.edit') }}",
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    $('#EmployeeModal').html("Edit Employee");
+                    $('#employee-modal').modal('show');
+                    $('#id').val(data.id);
+                    $('#name').val(data.name);
+                    $('#email').val(data.email);
+                    $('#adress').val(data.adress);
+                }
+            });
+        }
+
+        function deleteFunction(id) {
+            if (confirm("Are You sure want to delete?")) {
+                var id = id;
+                $.ajax({
+                    type: 'DELETE',
+                    url: "{{ route('employees.destroy') }}",
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        var table = $('#employee-table').DataTable();
+                        table.ajax.reload();
+                    }
+                })
+            }
+        }
+
         $('#EmployeeForm').submit(function(e) {
             e.preventDefault();
             var formData = new FormData(this);
