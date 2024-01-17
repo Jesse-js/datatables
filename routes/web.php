@@ -18,4 +18,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/datatables', [EmployeeController::class, 'index']);
+Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+Route::post('/employees/store', [EmployeeController::class, 'store'])->name('employees.store');
